@@ -1,51 +1,88 @@
-![logo_ironhack_blue 7](https://user-images.githubusercontent.com/23629340/40541063-a07a0a8a-601a-11e8-91b5-2f13e4e6b441.png)
+# Parking Lot Detection
 
-# Image Processing and Computer Vision
+## Objective of the Project
+The goal of this project is to build a computer vision model that detects and predicts empty or occupied parking spaces, aimed at improving intelligent parking management systems.
 
-## Introduction
+## Dataset Overview
+The dataset consists of images and a video of a parking lot, labeled as empty or not empty.
+- The images are organized to indicate the occupancy status.
+- The video captures real-time changes in parking space occupancy.
+- Some images include cropped regions (masks) that focus on specific parking spaces for accurate detection.
 
-The field of computer vision is revolutionizing the way machines interact with the visual world. Through this project, students will engage with fundamental techniques in image classification, applying machine learning models to real-world datasets. This will provide hands-on experience in both developing and deploying classifiers that can discern between different categories of objects in images.
+## Challenges & Solutions
 
-## Project Overview
+### Challenge 1: Defining the Computer Vision Workflow
+- **Challenge**: While the business goal was clear as a classification problem, determining the most effective computer vision workflow posed a challenge.
+- **Solution**: Transfer learning was selected as the optimal approach, utilizing pre-trained models like MobileNet for faster development and improved performance.
 
-This project is divided into several phases, each designed to deepen your understanding and skills in computer vision:
+### Challenge 2: Execution Time
+- **Challenge**: The large dataset led to significant processing times, slowing down the overall progress.
+- **Solution**: Optimized the workflow by limiting the dataset size and refining the model training process.
 
-1. **Dataset Selection**: Choose one of the provided datasets for image classification. Each dataset has unique characteristics and challenges:
-   - [Recycling](https://drive.google.com/file/d/1WhDq3xo2T-a8BAbx0ByoF8K1zvrHE5f2/view?usp=sharing): The dataset consists of images for machine learning classification, divided into two categories: recyclable and household waste. It aims to facilitate the development of models that can automate the sorting of these waste types, enhancing recycling processes.
-   - [Bone Fractures](https://drive.google.com/file/d/1WeuxOenviI1_ElW5ISED4MhvR_YFYdmB/view?usp=drive_link): The dataset includes multi-region X-ray images focused on diagnosing bone fractures.
-   - [Parking Lot Detection](https://drive.google.com/file/d/1Wehry7yNRMY5PELWkY6ysW_oQP44Xvzf/view?usp=sharing): The dataset is designed for developing and testing parking lot vehicle detection algorithms.
-   
-2. **Exploratory Data Analysis (EDA)**: Analyze the dataset to understand its structure, features, and the challenges it presents. Document your findings and initial thoughts on how to approach the classification problem.
+### Challenge 3: Google Colab Limitations
+- **Challenge**: Google Colab's environment faced limitations when handling video and multi-frame loading, which affected performance.
+- **Solution**: Reduced the number of frames processed after video loading, significantly improving efficiency.
 
-3. **Model Development**:
-   - Preprocess the images to get them ready for training.
-   - Select and apply a machine learning algorithm to build a classifier. You can use frameworks like TensorFlow, Keras, or PyTorch.
-   - Train your model and optimize its parameters to achieve the best performance.
 
-4. **Evaluation**:
-   - Validate your model using appropriate metrics (accuracy, precision, recall, F1-score, etc.).
-   - Discuss the performance of your model and any potential biases or limitations.
+## Methodology
 
-5. **Deployment (Optional choices)**:
-   - Deploy your model as a simple web application or a script that can take an image input and output a classification.
-   - You can use streamlit + Flask for this, for example
-   - Run your model on SageMaker
+### **ETL (Extract, Transform, Load)**
+- Implemented functions to load the dataset from Google Drive into the Colab environment.
+- Data is organized into two folders: "empty" (for empty parking spots) and "not empty" (for occupied spots).
 
-## Resources
+### **Modeling**
 
-- TensorFlow: [https://www.tensorflow.org/](https://www.tensorflow.org/)
-- PyTorch: [https://pytorch.org/](https://pytorch.org/)
-- Scikit-Learn for preprocessing tools: [https://scikit-learn.org/](https://scikit-learn.org/)
+#### **Train-Test Split**
+- Class names were automatically derived from the folder names using the `class_indices` attribute.
+- The ImageDataGenerator class was used to split the dataset into training and validation sets.
+- Batch size and target image size were specified, and pixel values were normalized to the range [0, 1].
+
+#### **Model Selection**
+
+1. **First Model: CNN**
+   - A Convolutional Neural Network (CNN) was designed with sequential layers:
+     - **Input Layer**: Takes images with dimensions.
+     - **Convolutional Layer (Conv2D)**: Extracts basic features like edges, lines, and textures.
+     - **ReLU Activation Layer**: Introduces non-linearity by setting negative values to zero.
+     - **MaxPooling2D Layer**: Reduces spatial dimensions and enhances feature extraction.
+     - **Flatten Layer**: Converts the 2D image matrix into a 1D vector for the fully connected layers.
+     - **Dense Layer**: Learns complex patterns and relationships in the data.
+     - **Sigmoid Output Layer**: Produces a binary output (0 for empty, 1 for not empty).
+
+2. **Second Model: MobileNet (Transfer Learning)**
+   - Utilized a pre-trained MobileNet model (without top layers) for feature extraction.
+   - Added a global average pooling layer and a dense layer with ReLU activation, followed by a final dense layer with a sigmoid activation function for binary classification.
+   - The model was compiled with the Adam optimizer and binary cross-entropy loss and trained for 10 epochs.
+
+### **Model Evaluation**
+
+1. **Confusion Matrix**  
+   - The model shows a balanced distribution between both classes, with true positives slightly exceeding other cases. 
+   - Focus is on reducing false negatives while improving accuracy, precision, and recall.
+
+2. **Classification Report**  
+   - The model's performance shows difficulty distinguishing between the two classes, with F1-scores of 0.59 for the empty class and 0.51 for the not empty class. 
+   - **Next Steps**: Perform data augmentation and fine-tune the model to improve classification accuracy.
+
+3. **Predictions on Video**
+   - MobileNet model used to predict parking space occupancy in a video, with empty spots highlighted in green and occupied spots marked in red.
+   - **Improvements**: Test the model on a larger dataset to evaluate its performance at scale.
+
+4. **Predicted Outcomes on Images**
+   - All images were predicted correctly by the model.
+
+5. **Next Steps**
+   - Explore alternative transfer learning models to further enhance classification performance.
+   - Implement fine-tuning on model weights specific to parking space detection.
+   - Apply data augmentation techniques to improve generalization.
+   - Use additional evaluation metrics, such as the ROC curve, for a more comprehensive performance analysis.
+   - Focus on enhancing key metrics in the classification report, including precision, recall, and accuracy.
 
 ## Deliverables
 
-1. **Python Code:** Provide well-documented Python code that conducts the analysis.
-2. **Report**: Submit a detailed report documenting your EDA findings, model development process, evaluation metrics, and conclusions about the model's performance.
-3. **Presentation**: Prepare a short presentation that overviews your project, from the dataset analysis to the final model evaluation. Include visual aids such as charts, model diagrams, and example predictions.
+1. **Python Code**  
+   Conducted the analysis and data modeling using Python and Jupyter Notebook. The code includes data preprocessing, model training, and evaluation, showcasing the model's performance.
 
-## Bonus
-
-- Implement data augmentation techniques to improve your model's robustness.
-- Compare the performance of at least three different models or architectures.
-- Provide an interactive demo of your model during the presentation.
+2. **Presentation**  
+   A detailed PowerPoint presentation summarizing the findings and insights. It includes data visualizations, the confusion matrix, model performance metrics, and predicted outcomes with visual indicators (green and red boxes) on video frames.
 
